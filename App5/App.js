@@ -1,27 +1,28 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import {
-  StyleSheet,
-  Text,
-  View,
+  FlatList,
   NativeModules,
-  TextInput,
+  StyleSheet,
   Switch,
-  DeviceEventEmitter,
+  Text,
+  TextInput,
   TouchableOpacity,
-  FlatList
+  View,
 } from 'react-native';
 
 const { HelloManager } = NativeModules;
 
 export default class App extends Component {
   state = {
-    userName: null,
     greetingMessage: null,
-    isAdmin: false
+    isAdmin: false,
+    people: [],
+    userName: null,
   }
 
   updateGreetingMessage = (result) => {
     this.setState({ greetingMessage: result });
+    this.setState({ people: [...this.state.people, `${this.state.userName} ${this.state.isAdmin ? 'was' : 'was not'} an admin`] });
   }
 
   greetUser = () => {
@@ -36,79 +37,58 @@ export default class App extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.label}>
-          Enter User Name
-        </Text>
+        <Text>Enter User Name</Text>
         <TextInput
-          ref="userName"
           autoCorrect={false}
-          style={styles.inputField}
-          placeholder="User Name"
-          onChangeText={(text) => this.setState({ userName: text }) }
+          placeholder='User Name'
+          ref='userName'
+          onChangeText={(text) => this.setState({ userName: text })}
+          style={styles.input}
         />
-        <Text style={styles.label}>
-          Admin
-        </Text>
+        <Text>Admin</Text>
         <Switch
-          style={styles.radio}
-          onValueChange={
-            value => this.setState({ isAdmin: value })
-          }
           value={this.state.isAdmin}
+          onValueChange={(value) => this.setState({ isAdmin: value })}
+          style={styles.radio}
         />
        <TouchableOpacity
           disabled={!this.state.userName}
-          style={[
-            styles.buttonStyle,
-            !this.state.userName ? styles.disabled : null
-          ]}
           onPress={this.greetUser}
+          style={[
+            styles.button,
+            !this.state.userName ? styles.disabled : null,
+          ]}
         >
           <Text>Greet</Text>
         </TouchableOpacity>
-        <Text style={styles.label}>
-          Response:
-        </Text>
-        <Text style={styles.message}>
-          {this.state.greetingMessage}
-        </Text>
+        <Text>Response:</Text>
+        <Text>{this.state.greetingMessage}</Text>
+        <FlatList
+          data={this.state.people}
+          renderItem={({ item }) => (<Text>{item}</Text>)}
+        />
       </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  button: {
+    backgroundColor: '#3066be',
+    padding: 20,
+  },
   container: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  inputField:{
-    padding: 20,
-    fontSize: 30,
-    width: 200
-  },
-  label: {
-    fontSize: 18,
-    marginTop: 18,
-    textAlign: 'center',
-  },
-  radio: {
-    marginBottom: 20
-  },
-  buttonStyle: {
-    padding: 20,
-    backgroundColor: '#1DA1F2',
-    color: '#fff',
-    fontSize: 18
-  },
-  message: {
-    fontSize: 22,
-    marginLeft: 50,
-    marginRight: 50,
+    backgroundColor: '#b4c5e4',
+    flex: 1,
   },
   disabled: {
-    backgroundColor: '#3C3C3C'
-  }
+    backgroundColor: '#ff0000',
+  },
+  input: {
+    fontSize: 30,
+  },
+  radio: {
+    marginBottom: 10,
+  },
 });
